@@ -1,0 +1,12 @@
+#ifndef RECORDINFO_GLOBAL_H
+#define RECORDINFO_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(RECORDINFO_LIBRARY)
+#  define RECORDINFOSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define RECORDINFOSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // RECORDINFO_GLOBAL_H

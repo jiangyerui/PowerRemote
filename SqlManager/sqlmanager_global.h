@@ -1,0 +1,12 @@
+#ifndef SQLMANAGER_GLOBAL_H
+#define SQLMANAGER_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(SQLMANAGER_LIBRARY)
+#  define SQLMANAGERSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define SQLMANAGERSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // SQLMANAGER_GLOBAL_H

@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ConfHost</class>
+ <widget class="QWidget" name="ConfHost">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1130</width>
+    <height>660</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget{
+color: rgb(255, 255,255);
+background-color: rgb(3, 127, 119);
+}
+QToolButton{
+font: 18pt &quot;楷体&quot;;
+color: rgb(255, 255, 255);
+border:1px solid;
+border-radius:10px;
+border-color: rgb(0, 0, 0);
+background-color: rgb(43, 79, 102);
+}
+
+QPushButton{
+font: 14pt &quot;楷体&quot;;
+width: 50px;
+height:35px;
+border:2px solid;
+border-radius:8px;
+color: rgb(255, 255, 255);
+border-color: rgb(0, 170, 127);
+
+}
+QPushButton:pressed{
+font: 13pt &quot;楷体&quot;;
+border-color: rgb(0, 170, 127);
+}
+
+QGroupBox{
+font: 14pt &quot;楷体&quot;;
+border: 1px solid white;
+border-radius:8px;
+margin-top:10px;
+}
+QGroupBox:title{
+color:white;
+subcontrol-origin: margin;
+left: 5px;
+}
+QLabel{
+font: 16pt &quot;楷体&quot;;
+color: rgb(255, 255, 255);
+}
+QLineEdit{
+font: 16pt &quot;楷体&quot;;
+color: rgb(255, 255, 255);
+}</string>
+  </property>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+     <x>5</x>
+     <y>80</y>
+     <width>1120</width>
+     <height>575</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QGroupBox{
+font: 14pt &quot;文泉驿等宽微米黑&quot;;
+border: 1px solid white;
+border-radius:8px;
+margin-top:10px;
+}
+QGroupBox:title{
+color:white;
+subcontrol-origin: margin;
+left: 5px;
+}
+</string>
+   </property>
+   <property name="title">
+    <string/>
+   </property>
+   <widget class="QTableWidget" name="tableWidget">
+    <property name="geometry">
+     <rect>
+      <x>5</x>
+      <y>25</y>
+      <width>1105</width>
+      <height>541</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::NoFocus</enum>
+    </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::NoContextMenu</enum>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QTableWidget{
+font: 13pt &quot;楷体&quot; rgb(255, 255, 255);
+border:1px none;
+background-color: rgb(43, 79, 102);
+gridline-color: rgb(0, 0, 0);
+background-color: rgb(3, 127, 119);
+}
+QCheckBox{
+spacing: 10px;
+}
+
+QCheckBox::indicator{
+width:40px;
+height:30px;
+margin-left:20px;
+image: url(:/Image/uncheck.png);
+}
+
+QCheckBox::indicator::unchecked {
+image: url(:/Image/uncheck.png);
+}
+QCheckBox::indicator::checked {
+image: url(:/Image/checked.png);
+}</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_2">
+   <property name="geometry">
+    <rect>
+     <x>5</x>
+     <y>-5</y>
+     <width>1120</width>
+     <height>86</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QGroupBox{
+font: 14pt &quot;文泉驿等宽微米黑&quot;;
+border: 1px solid white;
+border-radius:8px;
+margin-top:10px;
+}
+QGroupBox:title{
+color:white;
+subcontrol-origin: margin;
+left: 5px;
+}
+QComboBox {
+	border:1px solid  rgb(53, 156, 212);
+	color: rgb(255, 255, 255);
+	font: 12pt &quot;文泉驿等宽微米黑&quot;;
+   background-color: rgb(0, 50, 105);
+}
+
+QComboBox::item {	
+	font: 12pt &quot;文泉驿等宽微米黑&quot;;
+	color: rgb(255, 255, 255);
+    background-color: rgb(0, 50, 105);
+	selection-background-color: rgb(0, 170, 255);
+}
+</string>
+   </property>
+   <property name="title">
+    <string/>
+   </property>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>81</width>
+      <height>40</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>楷体</family>
+      <pointsize>16</pointsize>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>IP地址:</string>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="tBtnAdd">
+    <property name="geometry">
+     <rect>
+      <x>600</x>
+      <y>30</y>
+      <width>150</width>
+      <height>40</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>增加地址</string>
+    </property>
+    <property name="icon">
+     <iconset resource="../MainPage/image.qrc">
+      <normaloff>:/Image/addDev.png</normaloff>:/Image/addDev.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>30</width>
+      <height>30</height>
+     </size>
+    </property>
+    <property name="toolButtonStyle">
+     <enum>Qt::ToolButtonTextBesideIcon</enum>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="tBtnDel">
+    <property name="geometry">
+     <rect>
+      <x>780</x>
+      <y>30</y>
+      <width>150</width>
+      <height>40</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>删除地址</string>
+    </property>
+    <property name="icon">
+     <iconset resource="../MainPage/image.qrc">
+      <normaloff>:/Image/delDev.png</normaloff>:/Image/delDev.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>30</width>
+      <height>30</height>
+     </size>
+    </property>
+    <property name="toolButtonStyle">
+     <enum>Qt::ToolButtonTextBesideIcon</enum>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lEditHostIP">
+    <property name="geometry">
+     <rect>
+      <x>95</x>
+      <y>30</y>
+      <width>176</width>
+      <height>40</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>楷体</family>
+      <pointsize>16</pointsize>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="inputMask">
+     <string>000.000.000.000</string>
+    </property>
+    <property name="text">
+     <string>192.168.126.245</string>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="tBtnSave">
+    <property name="geometry">
+     <rect>
+      <x>960</x>
+      <y>30</y>
+      <width>150</width>
+      <height>40</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>保存配置</string>
+    </property>
+    <property name="icon">
+     <iconset resource="../MainPage/image.qrc">
+      <normaloff>:/Image/saveConf.png</normaloff>:/Image/saveConf.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>30</width>
+      <height>30</height>
+     </size>
+    </property>
+    <property name="toolButtonStyle">
+     <enum>Qt::ToolButtonTextBesideIcon</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>295</x>
+      <y>30</y>
+      <width>106</width>
+      <height>40</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>楷体</family>
+      <pointsize>16</pointsize>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>主机地址:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lEditHostAddress">
+    <property name="geometry">
+     <rect>
+      <x>400</x>
+      <y>30</y>
+      <width>171</width>
+      <height>40</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>楷体</family>
+      <pointsize>16</pointsize>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>111</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+    <property name="placeholderText">
+     <string>监控主机的地址</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources>
+  <include location="../MainPage/image.qrc"/>
+ </resources>
+ <connections/>
+</ui>

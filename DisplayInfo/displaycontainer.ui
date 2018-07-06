@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DisplayContainer</class>
+ <widget class="QTabWidget" name="DisplayContainer">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1130</width>
+    <height>660</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>TabWidget</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QTabWidget::pane{
+border-width: 0px;
+border-color:white;
+border-style:outset;
+/*border-radius: 40px;*/
+background-color: rgb(43, 79, 102);
+}​
+QTabWidget::tab-bar{
+left:10px;
+}
+QTabBar::tab{
+color: rgb(255, 255, 255);
+width: 80px;
+height:30px;
+font:20px;
+}
+QTabBar::tab:selected{
+margin-left: 1;  
+margin-right: 0;
+color: rgb(170, 255, 0);
+}
+QTabBar::tab:!selected{
+margin-left: 1;
+margin-right: 0;
+}
+QTabBar::tab:hover:!selected{
+margin-left: 1;
+margin-right: 0;
+}
+QTabBar::tab:!selected{
+margin-top: 6px; 
+margin-bottom: -6px; 
+}​
+</string>
+  </property>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

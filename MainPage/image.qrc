@@ -1,0 +1,36 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Image/background.png</file>
+        <file>Image/arrow-down.png</file>
+        <file>Image/arrow-up.png</file>
+        <file>Image/back.png</file>
+        <file>Image/calibration.png</file>
+        <file>Image/checked.png</file>
+        <file>Image/document.png</file>
+        <file>Image/download.png</file>
+        <file>Image/fire_down.ico</file>
+        <file>Image/magnifyingglass.png</file>
+        <file>Image/polaroids.png</file>
+        <file>Image/profle.png</file>
+        <file>Image/rainbow.png</file>
+        <file>Image/recycle.png</file>
+        <file>Image/run.png</file>
+        <file>Image/search.png</file>
+        <file>Image/speaker.png</file>
+        <file>Image/tools.png</file>
+        <file>Image/uncheck.png</file>
+        <file>Image/updata.png</file>
+        <file>Image/volume.png</file>
+        <file>Image/222.png</file>
+        <file>Image/denter.png</file>
+        <file>Image/safe.png</file>
+        <file>Image/warning.png</file>
+        <file>Image/alarm.png</file>
+        <file>Image/error.png</file>
+        <file>Image/normal.png</file>
+        <file>Image/delDev.png</file>
+        <file>Image/addDev.png</file>
+        <file>Image/saveConf.png</file>
+        <file>Image/backup.png</file>
+    </qresource>
+</RCC>
