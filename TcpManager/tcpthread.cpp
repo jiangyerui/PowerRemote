@@ -5,27 +5,11 @@
 #include <QByteArray>
 #include <QtNetwork/QTcpSocket>
 #include <QtNetwork/QAbstractSocket>
-char READSIZE = 16;
 
+
+char READSIZE = 16;
 char HEAD_L  = 0xAA;
 char HEAD_H  = 0x00;
-
-char HEAD_AA = 0;
-char HEAD_00 = 1;
-char CMD     = 2;
-char NET     = 3;
-char ADD_H   = 4;
-char ADD_L   = 5;
-char LONG    = 6;
-char TYPE    = 7;
-char STATE   = 8;
-char CUR_L   = 9;
-char CUR_H   = 10;
-char BASE_L  = 11;
-char BASE_H  = 12;
-char ALA_L   = 13;
-char ALA_H   = 14;
-char CRC     = 15;
 
 
 
@@ -84,29 +68,89 @@ bool TcpThread::checkSum(QByteArray byteArray)
     return false;
 }
 
-void TcpThread::parseDate(QByteArray byteArray)
+
+
+void TcpThread::analysisDate(QByteArray byteArray)
 {
+    qreal ai1;  qreal _ai_int;  qreal _ai_dec;
+    qreal bi1;  qreal _bi_int;  qreal _bi_dec;
+    qreal ci1;  qreal _ci_int;  qreal _ci_dec;
 
-    uint pass = byteArray.at(NET);
-    uint canId = byteArray.at(ADD_H) | byteArray.at(ADD_L);
+    uint av1;    uint av2;
+    uint bv1;    uint bv2;
+    uint cv1;    uint cv2;
 
-    uint state = byteArray.at(STATE);
+    uint pass = byteArray.at(PASS);
+    uint canId= byteArray.at(CANID);
+    uint type = byteArray.at(TYPE);
+    uint state= byteArray.at(STS);
 
-    uint type  = byteArray.at(TYPE);
-    if(type == 2)//漏电
-    {
-        uint curLeak   = (uchar)byteArray.at(CUR_L) | (uchar)byteArray.at(CUR_H) << 8;
-        uint baseValue = (uchar)byteArray.at(BASE_L)| (uchar)byteArray.at(BASE_H)<< 8;
-        uint alarmSet  = (uchar)byteArray.at(ALA_L) | (uchar)byteArray.at(ALA_H) << 8;
-        emit sigNodeUpdate(pass,canId,type,state,curLeak,baseValue,alarmSet);
+    switch (type) {
+    case MOD_V:
+    case MOD_V3://三项双路无零
+    case MOD_VN3://三项双路有零
+
+        av1 = byteArray.at(AV_1)*2;
+        bv1 = byteArray.at(BV_1)*2;
+        cv1 = byteArray.at(CV_1)*2;
+
+        av2 = byteArray.at(AV_2)*2;
+        bv2 = byteArray.at(BV_2)*2;
+        cv2 = byteArray.at(CV_2)*2;
+
+        emit sigModUpdate(pass,canId,type,state,av1,bv1,cv1,av2,bv2,cv2,0,0,0);
+        break;
+    case MOD_VA:
+    case MOD_VA3: //电压电流无零
+    case MOD_VAN3://电压电流有零
+
+        av1 = byteArray.at(AV_1)*2;
+        bv1 = byteArray.at(BV_1)*2;
+        cv1 = byteArray.at(CV_1)*2;
+
+        //整数部分
+        _ai_int = byteArray.at(AI_1) >> 4;
+        _bi_int = byteArray.at(BI_1) >> 4;
+        _ci_int = byteArray.at(CI_1) >> 4;
+        //小数部分
+        _ai_dec = byteArray.at(AI_1) & 0x0F;
+        _bi_dec = byteArray.at(BI_1) & 0x0F;
+        _ci_dec = byteArray.at(CI_1) & 0x0F;
+        //整数+小数
+        ai1 = _ai_int + _ai_dec / 10;
+        bi1 = _bi_int + _bi_dec / 10;
+        ci1 = _ci_int + _ci_dec / 10;
+
+        emit sigModUpdate(pass,canId,type,state,av1,bv1,cv1,0,0,0,ai1,bi1,ci1);
+        break;
+    case MOD_2VAN3://两路三项电压一路三项电流
+
+        av1 = byteArray.at(AV_1)*2;
+        bv1 = byteArray.at(BV_1)*2;
+        cv1 = byteArray.at(CV_1)*2;
+
+        av2 = byteArray.at(AV_2)*2;
+        bv2 = byteArray.at(BV_2)*2;
+        cv2 = byteArray.at(CV_2)*2;
+
+        //整数部分
+        _ai_int = byteArray.at(AI_1) >> 4;
+        _bi_int = byteArray.at(BI_1) >> 4;
+        _ci_int = byteArray.at(CI_1) >> 4;
+        //小数部分
+        _ai_dec = byteArray.at(AI_1) & 0x0F;
+        _bi_dec = byteArray.at(BI_1) & 0x0F;
+        _ci_dec = byteArray.at(CI_1) & 0x0F;
+        //整数+小数
+        ai1 = _ai_int + _ai_dec / 10;
+        bi1 = _bi_int + _bi_dec / 10;
+        ci1 = _ci_int + _ci_dec / 10;
+
+        emit sigModUpdate(pass,canId,type,state,av1,bv1,cv1,av2,bv2,cv2,ai1,bi1,ci1);
+        break;
+    default:
+        break;
     }
-    else
-    {
-        uint curTemp = byteArray.at(CUR_L);
-        uint tempSet = byteArray.at(ALA_L);
-        emit sigNodeUpdate(pass,canId,type,state,curTemp,0,tempSet);
-    }
-
 }
 
 void TcpThread::slotConnectSuccess()
@@ -149,7 +193,8 @@ void TcpThread::slotReceiveData()
         if(byteArray.at(HEAD_AA) == HEAD_L && byteArray.at(HEAD_00) == HEAD_H && true == checkSum(byteArray))
         {
             //数据包解析
-            parseDate(byteArray);
+            //parseDate(byteArray);
+            analysisDate(byteArray);
         }
     }
 

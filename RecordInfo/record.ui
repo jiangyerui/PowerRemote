@@ -146,44 +146,59 @@ color: rgb(255, 255, 255);
    <widget class="QComboBox" name="cbBoxType">
     <property name="geometry">
      <rect>
-      <x>430</x>
+      <x>389</x>
       <y>20</y>
-      <width>80</width>
+      <width>116</width>
       <height>40</height>
      </rect>
     </property>
     <item>
      <property name="text">
-      <string>全部</string>
+      <string>全部故障</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>报警</string>
+      <string>过流故障</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>模块</string>
+      <string>缺相故障</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>通讯</string>
+      <string>过压故障</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>欠压故障</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>通讯故障</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>供电中断</string>
      </property>
     </item>
    </widget>
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>320</x>
+      <x>330</x>
       <y>20</y>
-      <width>100</width>
+      <width>56</width>
       <height>40</height>
      </rect>
     </property>
     <property name="text">
-     <string>故障类型：</string>
+     <string>故障：</string>
     </property>
    </widget>
    <widget class="QDateTimeEdit" name="dTEditStart">

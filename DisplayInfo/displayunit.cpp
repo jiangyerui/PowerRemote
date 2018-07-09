@@ -16,10 +16,6 @@
 #define MOD_LEAK 2//漏电
 #define MOD_TEMP 3//温度
 
-#define NORMAL 0
-#define ALARM  1
-#define ERROR  2
-#define DROPED 4
 
 DisplayUnit::DisplayUnit(QWidget *parent) :
     QWidget(parent),
@@ -35,8 +31,10 @@ DisplayUnit::DisplayUnit(QWidget *parent) :
     updateTimer = new QTimer;
     connect(updateTimer,&QTimer::timeout,this,&DisplayUnit::slotUpdateTime);
     updateTimer->start(2000);
+    ui->tBtnReset->hide();
 
-    connect(ui->tBtnReset,&QToolButton::clicked,this,&DisplayUnit::slotBtnReset);
+
+    //    connect(ui->tBtnReset,&QToolButton::clicked,this,&DisplayUnit::slotBtnReset);
 
 }
 
@@ -104,11 +102,6 @@ void DisplayUnit::initWidget()
     initMod();
     initBtn();
     dateClean();
-
-    ui->tBtnNest->setVisible(false);
-    ui->tBtnLast->setVisible(false);
-
-
 }
 
 void DisplayUnit::confTcpInfo(QString host, quint16 port)
@@ -119,212 +112,76 @@ void DisplayUnit::confTcpInfo(QString host, quint16 port)
     tcpManager->moveToThread(thread);
     thread->start();
 
-    connect(tcpManager,&TcpManager::sigNodeUpdate,this,&DisplayUnit::slotNodeUpdate);
+    connect(tcpManager,&TcpManager::sigModUpdate,this,&DisplayUnit::slotModUpdate);
     connect(tcpManager,&TcpManager::sigConnectStatus,this,&DisplayUnit::slotConnectStatus);
 }
 
 void DisplayUnit::dateClean()
 {
-    //温度
-    ui->lcdNb_tempAlarm->display("0");//温度报警
-    ui->lcdNb_tempCur->display("0"); //温度实时
-    ui->lcdNb_tempSet->display("0");//温度设定
-    //漏电
-    ui->lcdNb_leakBase->display("0");//固有漏电
-    ui->lcdNb_leakCur->display("0");//实时漏电
-    ui->lcdNb_leakAlarm->display("0");//漏电报警
-    ui->lcdNb_leakSet->display("0");//漏电设定
+    ui->lcdNb_AV_1->display("0");//温度报警
+    ui->lcdNb_BV_1->display("0");//温度实时
+    ui->lcdNb_CV_1->display("0");//温度设定
+    ui->lcdNb_AV_2->display("0");//固有漏电
+    ui->lcdNb_BV_2->display("0");//实时漏电
+    ui->lcdNb_CV_2 ->display("0");//漏电报警
+    ui->lcdNb_AI_1->display("0");//漏电设定
+    ui->lcdNb_BI_1->display("0");
+    ui->lcdNb_CI_1->display("0");
 }
 
-void DisplayUnit::updateNodeValue(uint pass, uint canId)
-{
-    int leakSet    = mod[pass][canId].leakSet;
-    int leakCur    = mod[pass][canId].leakCur;
-    int leakBase   = mod[pass][canId].leakBase;
-    int leakAlarm  = mod[pass][canId].leakAlarm;
 
-    int tempCur    = mod[pass][canId].tempCur;
-    int tempSet    = mod[pass][canId].tempSet;
-    int tempAlarm  = mod[pass][canId].tempAlarm;
-
-    int nodeType   = mod[pass][canId].nodeType;
-
-
-
-    if(nodeType == 3)
-    {
-        //温度
-        ui->lcdNb_tempCur->display(QString::number(tempCur));
-        ui->lcdNb_tempSet->display(QString::number(tempSet));
-        ui->lcdNb_tempAlarm->display(QString::number(tempAlarm));
-
-        ui->lcdNb_leakCur->display("0");
-        ui->lcdNb_leakSet->display("0");
-        ui->lcdNb_leakBase->display("0");
-        ui->lcdNb_leakAlarm->display("0");
-
-    }
-    else
-    {
-        //漏电
-        ui->lcdNb_leakCur->display(QString::number(leakCur));
-        ui->lcdNb_leakSet->display(QString::number(leakSet));
-        ui->lcdNb_leakBase->display(QString::number(leakBase));
-        ui->lcdNb_leakAlarm->display(QString::number(leakAlarm));
-
-        ui->lcdNb_tempCur->display("0");
-        ui->lcdNb_tempSet->display("0");
-        ui->lcdNb_tempAlarm->display("0");
-    }
-
-
-}
-
-void DisplayUnit::slotNodeUpdate(uint pass, uint canId, uint type, uint sts, uint curValue, uint baseValue, uint alarmValue)
+void DisplayUnit::updateNodeValue(uint canId)
 {
 
-    mod[pass][canId].used = true;
-    mod[pass][canId].nodeType = type;
-    if(type == 2)
-    {
-        mod[pass][canId].leakCur   = curValue;
-        mod[pass][canId].leakBase  = baseValue;
-        mod[pass][canId].leakSet   = alarmValue;
-        /*************************************/
-        mod[pass][canId].tempCur = 0;
-        mod[pass][canId].tempSet = 0;
-        mod[pass][canId].tempAlarm = 0;
-    }
-    else
-    {
-        mod[pass][canId].leakSet   = 0;
-        mod[pass][canId].leakCur   = 0;
-        mod[pass][canId].leakBase  = 0;
-        mod[pass][canId].leakAlarm = 0;
-        /*************************************/
-        mod[pass][canId].tempCur = curValue;
-        mod[pass][canId].tempSet = alarmValue;
-        if(sts == 1 && mod[pass][canId].alarmFlag == false)
-        {
+    switch (modUnit[canId].nodeType) {
+    case MOD_V:
+    case MOD_V3:
+    case MOD_VN3://三项双路有零
+        ui->lcdNb_AV_1->display(modUnit[canId]._AV_1);
+        ui->lcdNb_BV_1->display(modUnit[canId]._BV_1);
+        ui->lcdNb_CV_1->display(modUnit[canId]._CV_1);
 
-            //插入数据
-        }
-    }
+        ui->lcdNb_AV_2->display(modUnit[canId]._AV_2);
+        ui->lcdNb_BV_2->display(modUnit[canId]._BV_2);
+        ui->lcdNb_CV_2->display(modUnit[canId]._CV_2);
 
-    switch (sts) {
-    case NORMAL:
-        //传感器故障
-        if(mod[pass][canId].errorFlag == true)
-        {
-            mod[pass][canId].errorFlag = false;
-            errorCount--;
-        }
-        //报警
-        if(mod[pass][canId].alarmFlag == true)
-        {
-            mod[pass][canId].alarmFlag = false;
-            alarmCount--;
-        }
-        //掉线
-        if(mod[pass][canId].dropFlag == true)
-        {
-            mod[pass][canId].dropFlag  = false;
-            errorCount--;
-        }
-        //正常
-        if(mod[pass][canId].errorFlag == false&&mod[pass][canId].alarmFlag == false&&mod[pass][canId].dropFlag == false)
-        {
-            mod[pass][canId].normalFlag = true;
-        }
+        ui->lcdNb_AI_1->display(0);
+        ui->lcdNb_BI_1->display(0);
+        ui->lcdNb_CI_1->display(0);
+        break;
+    case MOD_VA:
+    case MOD_VA3://电压电流有零
+    case MOD_VAN3://电压电流有零
+        ui->lcdNb_AV_1->display(modUnit[canId]._AV_1);
+        ui->lcdNb_BV_1->display(modUnit[canId]._BV_1);
+        ui->lcdNb_CV_1->display(modUnit[canId]._CV_1);
+
+        ui->lcdNb_AV_2->display(0);
+        ui->lcdNb_BV_2->display(0);
+        ui->lcdNb_CV_2->display(0);
+
+        ui->lcdNb_AI_1->display(modUnit[canId]._AI_1);
+        ui->lcdNb_BI_1->display(modUnit[canId]._BI_1);
+        ui->lcdNb_CI_1->display(modUnit[canId]._CI_1);
 
         break;
-    case ALARM:
-        if(mod[pass][canId].alarmFlag == false)
-        {
-            mod[pass][canId].alarmFlag = true;
-            alarmCount++;
-            if(type == MOD_LEAK)
-            {
-                mod[pass][canId].leakAlarm = curValue;
-            }
-            else
-            {
-                mod[pass][canId].tempAlarm = curValue;
-            }
-            //插入数据
-            uint alarmTime = QDateTime::currentDateTime().toTime_t();
-            QSqlDatabase db = SqlManager::openConnection();
-            SqlManager::insertAlarmRecord(db,host,pass,canId,type,sts,curValue,alarmTime);
-            SqlManager::closeConnection(db);
-        }
-        break;
-    case ERROR:
+    case MOD_2VAN3://两路三项电压一路三项电流
+        ui->lcdNb_AV_1->display(modUnit[canId]._AV_1);
+        ui->lcdNb_BV_1->display(modUnit[canId]._BV_1);
+        ui->lcdNb_CV_1->display(modUnit[canId]._CV_1);
 
-        if(mod[pass][canId].errorFlag == false)
-        {
-            errorCount++;
-            mod[pass][canId].errorFlag = true;
-            //
-            uint alarmTime = QDateTime::currentDateTime().toTime_t();
-            QSqlDatabase db = SqlManager::openConnection();
-            SqlManager::insertAlarmRecord(db,host,pass,canId,type,sts,0,alarmTime);
-            SqlManager::closeConnection(db);
-        }
-        break;
-    case DROPED:
-        if(mod[pass][canId].dropFlag == false)
-        {
-            errorCount++;
-            mod[pass][canId].dropFlag = true;
-            //
-            uint alarmTime = QDateTime::currentDateTime().toTime_t();
-            QSqlDatabase db = SqlManager::openConnection();
-            SqlManager::insertAlarmRecord(db,host,pass,canId,type,sts,0,alarmTime);
-            SqlManager::closeConnection(db);
-        }
+        ui->lcdNb_AV_2->display(modUnit[canId]._AV_2);
+        ui->lcdNb_BV_2->display(modUnit[canId]._BV_2);
+        ui->lcdNb_CV_2->display(modUnit[canId]._CV_2);
+
+        ui->lcdNb_AI_1->display(modUnit[canId]._AI_1);
+        ui->lcdNb_BI_1->display(modUnit[canId]._BI_1);
+        ui->lcdNb_CI_1->display(modUnit[canId]._CI_1);
 
         break;
     default:
         break;
     }
-
-    QString alarmText = "报警"+QString::number(alarmCount)+"个";
-    QString errorText = "故障"+QString::number(errorCount)+"个";
-    ui->lb_alarmNum->setText(alarmText);
-    ui->lb_errorNum->setText(errorText);
-
-    int index = 1;
-    for(int canId = 1;canId < CANIDNUM; canId++)
-    {
-        tBtnGroup->button(index)->setText(" ");
-        tBtnGroup->button(index)->setVisible(false);
-        if(mod[pass][canId].used == true)
-        {
-            QString text = QString::number(pass)+"-"+QString::number(canId);
-            tBtnGroup->button(index)->setText(text);
-            tBtnGroup->button(index)->setVisible(true);
-
-            if(mod[pass][canId].normalFlag == true)
-            {
-                tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/normal.png")));
-            }
-            if(mod[pass][canId].errorFlag  == true)
-            {
-                tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/error.png")));
-            }
-            if(mod[pass][canId].dropFlag   == true)
-            {
-                tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/error.png")));
-            }
-            if(mod[pass][canId].alarmFlag  == true)
-            {
-                tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/alarm.png")));
-            }
-            index++;
-        }
-    }
-
-    ui->lb_nodeNum->setText(QString::number(index-1));
 }
 
 void DisplayUnit::slotConnectStatus(bool state)
@@ -352,7 +209,7 @@ void DisplayUnit::slotBtnClick(int index)
 
 void DisplayUnit::slotUpdateTime()
 {
-    updateNodeValue(curPass,curCanId);
+    updateNodeValue(curCanId);
 }
 
 void DisplayUnit::slotBtnReset()
@@ -374,4 +231,224 @@ void DisplayUnit::slotBtnReset()
         ui->lb_alarmNum->setText("报警0个");
         ui->lb_errorNum->setText("故障0个");
     }
+}
+
+void DisplayUnit::slotModUpdate(uint pass, uint canId, uint type, uint sts, uint av_1, uint bv_1, uint cv_1,
+                                uint av_2, uint bv_2, uint cv_2, qreal ai_1, qreal bi_1, qreal ci_1)
+{
+    Q_UNUSED(pass)
+    modUnit[canId].used = true;
+    modUnit[canId].nodeType = type;
+
+    switch (type) {
+    case MOD_V:
+    case MOD_V3:
+    case MOD_VN3://三项双路有零
+        modUnit[canId]._AV_1 = av_1;
+        modUnit[canId]._BV_1 = bv_1;
+        modUnit[canId]._CV_1 = cv_1;
+
+        modUnit[canId]._AV_2 = av_2;
+        modUnit[canId]._BV_2 = bv_2;
+        modUnit[canId]._CV_2 = cv_2;
+
+        break;
+    case MOD_VA:
+    case MOD_VA3://电压电流有零
+    case MOD_VAN3://电压电流有零
+        modUnit[canId]._AV_1 = av_1;
+        modUnit[canId]._BV_1 = bv_1;
+        modUnit[canId]._CV_1 = cv_1;
+
+        modUnit[canId]._AI_1 = ai_1;
+        modUnit[canId]._BI_1 = bi_1;
+        modUnit[canId]._CI_1 = ci_1;
+
+        break;
+    case MOD_2VAN3://两路三项电压一路三项电流
+        modUnit[canId]._AV_1 = av_1;
+        modUnit[canId]._BV_1 = bv_1;
+        modUnit[canId]._CV_1 = cv_1;
+
+        modUnit[canId]._AV_2 = av_2;
+        modUnit[canId]._BV_2 = bv_2;
+        modUnit[canId]._CV_2 = cv_2;
+
+        modUnit[canId]._AI_1 = ai_1;
+        modUnit[canId]._BI_1 = bi_1;
+        modUnit[canId]._CI_1 = ci_1;
+        break;
+    default:
+        break;
+    }
+
+    switch (sts) {
+    case NORMAL:
+
+        if(modUnit[canId].dropFlag == true)
+        {
+            errorCount--;
+            modUnit[canId].dropFlag = false;
+        }
+        if(modUnit[canId].phaseLossFlag == true)
+        {
+            errorCount--;
+            modUnit[canId].phaseLossFlag = false;
+        }
+        if(modUnit[canId].overCurrentFlag == true)
+        {
+            errorCount--;
+            modUnit[canId].overCurrentFlag = false;
+        }
+        if(modUnit[canId].overVoltageFlag == true)
+        {
+            errorCount--;
+            modUnit[canId].overVoltageFlag = false;
+        }
+        if(modUnit[canId].underVoltageFlag == true)
+        {
+            errorCount--;
+           modUnit[canId].underVoltageFlag = false;
+        }
+        if(modUnit[canId].interruptionFlag == false)
+        {
+            alarmCount--;
+            modUnit[canId].interruptionFlag = true;
+        }
+        if(modUnit[canId].dropFlag == false&&modUnit[canId].phaseLossFlag == false&&
+                modUnit[canId].overCurrentFlag == false&&modUnit[canId].overVoltageFlag == false&&
+                modUnit[canId].underVoltageFlag == false&&modUnit[canId].interruptionFlag == false)
+        {
+            ui->lbState->setText("正常");
+            modUnit[canId].normalFlag = true;
+        }
+
+
+    case CANERROR:
+
+        if(modUnit[canId].dropFlag == false)
+        {
+            errorCount++;
+            ui->lbState->setText("通讯故障");
+            modUnit[canId].dropFlag = true;
+            uint alarmTime = QDateTime::currentDateTime().toTime_t();
+            QSqlDatabase db = SqlManager::openConnection();
+            SqlManager::insertAlarmRecord(db,host,1,canId,type,sts,0,alarmTime);
+            SqlManager::closeConnection(db);
+        }
+
+        break;
+    case PHASELOSS:
+
+        if(modUnit[canId].phaseLossFlag == false)
+        {
+            errorCount++;
+            modUnit[canId].phaseLossFlag = true;
+            ui->lbState->setText("缺相");
+            uint alarmTime = QDateTime::currentDateTime().toTime_t();
+            QSqlDatabase db = SqlManager::openConnection();
+            SqlManager::insertAlarmRecord(db,host,1,canId,type,sts,0,alarmTime);
+            SqlManager::closeConnection(db);
+        }
+
+        break;
+    case OVERCURRENT:
+
+        if(modUnit[canId].overCurrentFlag == false)
+        {
+            errorCount++;
+            ui->lbState->setText("过流");
+            modUnit[canId].overCurrentFlag = true;
+            uint alarmTime = QDateTime::currentDateTime().toTime_t();
+            QSqlDatabase db = SqlManager::openConnection();
+            SqlManager::insertAlarmRecord(db,host,1,canId,type,sts,0,alarmTime);
+            SqlManager::closeConnection(db);
+        }
+
+        break;
+    case OVERVOLTAGE:
+
+        if(modUnit[canId].overVoltageFlag == false)
+        {
+            errorCount++;
+            ui->lbState->setText("过压");
+            modUnit[canId].overVoltageFlag = true;
+            uint alarmTime = QDateTime::currentDateTime().toTime_t();
+            QSqlDatabase db = SqlManager::openConnection();
+            SqlManager::insertAlarmRecord(db,host,1,canId,type,sts,0,alarmTime);
+            SqlManager::closeConnection(db);
+        }
+
+        break;
+    case UNDERVOLTAGE:
+
+        if(modUnit[canId].underVoltageFlag == false)
+        {
+            errorCount++;
+            ui->lbState->setText("欠压");
+            modUnit[canId].underVoltageFlag = true;
+            uint alarmTime = QDateTime::currentDateTime().toTime_t();
+            QSqlDatabase db = SqlManager::openConnection();
+            SqlManager::insertAlarmRecord(db,host,1,canId,type,sts,0,alarmTime);
+            SqlManager::closeConnection(db);
+        }
+
+        break;
+    case INTERRUPTION:
+
+        if(modUnit[canId].interruptionFlag == false)
+        {
+            alarmCount++;
+            ui->lbState->setText("供电中断");
+            modUnit[canId].interruptionFlag = true;
+            uint alarmTime = QDateTime::currentDateTime().toTime_t();
+            QSqlDatabase db = SqlManager::openConnection();
+            SqlManager::insertAlarmRecord(db,host,1,canId,type,sts,0,alarmTime);
+            SqlManager::closeConnection(db);
+
+        }
+
+        break;
+    default:
+        break;
+    }
+
+    QString alarmText = "报警"+QString::number(alarmCount)+"个";
+    QString errorText = "故障"+QString::number(errorCount)+"个";
+    ui->lb_alarmNum->setText(alarmText);
+    ui->lb_errorNum->setText(errorText);
+
+    int index = 1;
+    for(int canId = 1;canId < CANIDNUM; canId++)
+    {
+        tBtnGroup->button(index)->setText(" ");
+        tBtnGroup->button(index)->setVisible(false);
+        if(modUnit[canId].used == true)
+        {
+            QString text = QString::number(pass)+"-"+QString::number(canId);
+            tBtnGroup->button(index)->setText(text);
+            tBtnGroup->button(index)->setVisible(true);
+
+            if(mod[pass][canId].normalFlag == true)
+            {
+                tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/normal.png")));
+            }
+            if(mod[pass][canId].errorFlag  == true)
+            {
+                tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/error.png")));
+            }
+            if(mod[pass][canId].dropFlag   == true)
+            {
+                tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/error.png")));
+            }
+            if(mod[pass][canId].alarmFlag  == true)
+            {
+                tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/alarm.png")));
+            }
+            index++;
+        }
+    }
+    //节点数目
+    ui->lb_nodeNum->setText(QString::number(index-1));
+
 }

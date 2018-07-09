@@ -9,6 +9,8 @@ TcpManager::TcpManager(QObject *parent) : QObject(parent)
 TcpManager::TcpManager(QString host, quint16 port)
 {
     tcpThread = new TcpThread(host,port);
-    connect(tcpThread,&TcpThread::sigNodeUpdate,this,&TcpManager::sigNodeUpdate);
+    connect(tcpThread,&TcpThread::sigModUpdate,this,&TcpManager::sigModUpdate);
+    //connect(tcpThread,&TcpThread::sigNodeUpdate,this,&TcpManager::sigNodeUpdate);
     connect(tcpThread,&TcpThread::sigConnectStatus,this,&TcpManager::sigConnectStatus);
+
 }

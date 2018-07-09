@@ -12,8 +12,19 @@
 #define CANID   2
 #define TYPE    3
 #define STATE   4
-#define VALUE   5
-#define TIME    6
+#define TIME    5
+
+
+#define OVERCURRENT     0x01//过流
+#define PHASELOSS       0x02//错相
+#define OVERVOLTAGE     0x03//过压
+#define UNDERVOLTAGE    0x04//欠压
+#define INTERRUPTION    0x05//供电中断
+#define CANERROR        0x06//通讯中断
+
+
+
+
 
 Record::Record(QWidget *parent) :
     QWidget(parent),
@@ -68,25 +79,25 @@ void Record::initTableWidget(QTableWidget *tableWidget)
     tableWidget->setSelectionMode (QAbstractItemView::NoSelection); //设置选择模式，选择单行
 
     QStringList headList;
-    headList<<tr("IP地址")<<tr("通道")<<tr("地址")<<tr("类型")<<tr("状态")<<tr("数值")<<tr("报警时间");
+    headList<<tr("IP地址")<<tr("通道")<<tr("地址")<<tr("类型")<<tr("状态")<<tr("报警时间");
     tableWidget->setColumnCount(headList.count());
     tableWidget->setHorizontalHeaderLabels(headList);
     tableWidget->horizontalHeader()->setFixedHeight(30);
     tableWidget->verticalHeader()->setFixedWidth(22);
+
 
     tableWidget->setColumnWidth(0,200);
     tableWidget->setColumnWidth(1,100);
     tableWidget->setColumnWidth(2,100);
     tableWidget->setColumnWidth(3,100);
     tableWidget->setColumnWidth(4,100);
-    tableWidget->setColumnWidth(5,100);
-    tableWidget->setColumnWidth(6,300);
+    tableWidget->setColumnWidth(5,300);
 
 }
 
 QString Record::confQuerySql()
 {
-    QString querySql = "select HOST,NET,ID,TYPE,STS,VALUE,TIME from RECORD where";
+    QString querySql = "select HOST,NET,ID,TYPE,STS,TIME from RECORD where";
 
     QString host = ui->cbBoxHost->currentText();
 
@@ -94,20 +105,30 @@ QString Record::confQuerySql()
 
     int state = ui->cbBoxType->currentIndex();
     switch (state) {
-    case 0://全部
+    case 0:
         break;
-    case 1://报警
+    case OVERCURRENT:
         querySql += " and STS = 1";
         break;
-    case 2://故障
+    case PHASELOSS:
         querySql += " and STS = 2";
         break;
-    case 3://掉线
+    case OVERVOLTAGE:
+        querySql += " and STS = 3";
+        break;
+    case UNDERVOLTAGE:
         querySql += " and STS = 4";
+        break;
+    case INTERRUPTION:
+        querySql += " and STS = 5";
+        break;
+    case CANERROR:
+        querySql += " and STS = 6";
         break;
     default:
         break;
     }
+
     QString startTime = QString::number(ui->dTEditStart->dateTime().toTime_t());
     QString stopTime  = QString::number(ui->dTEditStop->dateTime().toTime_t());
 
@@ -115,6 +136,19 @@ QString Record::confQuerySql()
 
     return querySql;
 }
+
+
+#define MOD_V3      2//双路三相电压型
+#define MOD_VN3     7//三项双路有零
+
+#define MOD_V       3//六路单相电压型
+
+#define MOD_VA      6//单项电压电流
+
+#define MOD_VA3     4//电压电流型
+#define MOD_VAN3    8//电压电流有零
+
+#define MOD_2VAN3   9//两路三项电压一路三项电流
 
 void Record::recordListShow(QTableWidget *tableWidget,QString querySql)
 {
@@ -137,8 +171,7 @@ void Record::recordListShow(QTableWidget *tableWidget,QString querySql)
         canId = itemStr.at(2);
         type  = itemStr.at(3);
         state = itemStr.at(4);
-        value = itemStr.at(5);
-        time  = itemStr.at(6);
+        time  = itemStr.at(5);
         //tableWidget->setRowHeight(row,27);
 
         for(int column = 0;column < columnCount;column++)
@@ -160,46 +193,54 @@ void Record::recordListShow(QTableWidget *tableWidget,QString querySql)
                 item->setText(canId);
                 break;
             case TYPE://类型
-                if(type.toInt() == 2)//漏电
-                {
-                    item->setText("漏电");
-                }
-                else//温度
-                {
-                    item->setText("温度");
-                }
-                break;
-            case STATE://状态
-                switch (state.toInt()) {
-                case 1://报警
-                    item->setText("模块报警");
+                switch (type.toInt()) {
+                case MOD_V3:
+                case MOD_VN3:
+                    item->setText("V32");
                     break;
-                case 2://故障
-                    item->setText("模块故障");
+                case MOD_V:
+                    item->setText("V");
                     break;
-                case 4://掉线
-                    item->setText("模块掉线");
+                case MOD_VA:
+                    item->setText("VA3");
+                    break;
+                case MOD_VA3:
+                case MOD_VAN3:
+                    item->setText("VA");
+                    break;
+                case MOD_2VAN3:
+                    item->setText("VA32");
                     break;
                 default:
                     break;
                 }
                 break;
-            case VALUE://数值
-                if(type.toInt() == 2 && state.toInt() == 1)//漏电
-                {
-                    item->setText(value+"mA");
-                }
-                else if(type.toInt() == 3 && state.toInt() == 1)//温度
-                {
-                    item->setText(value+"℃");
-                }
-                else
-                {
-                    item->setText("--");
+            case STATE://状态
+                switch (state.toInt()) {
+                case OVERCURRENT:
+                    item->setText("过流报警");
+                    break;
+                case PHASELOSS:
+                    item->setText("缺相故障");
+                    break;
+                case OVERVOLTAGE:
+                    item->setText("过压掉线");
+                    break;
+                case UNDERVOLTAGE:
+                    item->setText("欠压报警");
+                    break;
+                case INTERRUPTION:
+                    item->setText("通讯故障");
+                    break;
+                case CANERROR:
+                    item->setText("供电中断");
+                    break;
+                default:
+                    break;
                 }
                 break;
             case TIME://时间
-                item->setText(QDateTime::fromTime_t(time.toUInt()).toString("yyyy年MM月dd hh:mm:ss"));
+                item->setText(QDateTime::fromTime_t(time.toUInt()).toString("yyyy年MM月dd日 hh:mm:ss"));
                 break;
             default:
                 break;

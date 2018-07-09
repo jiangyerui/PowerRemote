@@ -65,10 +65,49 @@ public:
         alarmFlag = false;
         errorFlag = false;
         normalFlag = false;
-
-
     }
 };
+
+
+class ModularUnit{
+public:
+    bool used;
+    int pass;
+    int canId;
+    int nodeStatus;
+    int nodeType;
+
+    bool dropFlag;          //掉线
+    bool normalFlag;        //正常
+    bool phaseLossFlag;     //错相
+    bool overCurrentFlag;   //过流
+    bool overVoltageFlag;   //过压
+    bool underVoltageFlag;  //欠压
+    bool interruptionFlag;  //供电中断
+
+    int  _AV_1;
+    int  _BV_1;
+    int  _CV_1;
+
+    int  _AV_2;
+    int  _BV_2;
+    int  _CV_2;
+
+    qreal _AI_1;
+    qreal _BI_1;
+    qreal _CI_1;
+
+    void initData(){
+        used = false;
+        nodeType = 0;
+        nodeStatus = 0;
+    }
+
+
+};
+
+
+
 class DISPLAYINFOSHARED_EXPORT DisplayUnit : public QWidget
 {
     Q_OBJECT
@@ -97,21 +136,27 @@ private:
     QList<BtnUnitInfo> tBtnUnitInfoList;
 
     BtnUnitInfo mod[PASSNUM][CANIDNUM];
+
+    ModularUnit modUnit[CANIDNUM];
+
     void initBtn();
     void initMod();
     void initWidget();
 
     void dateClean();//清空数据
-    void updateNodeValue(uint pass, uint canId);//探测器实时数据
+    void updateNodeValue(uint canId);//探测器实时数据
 
 
 private slots:
-    void slotNodeUpdate(uint pass,uint id,uint type,uint sts,uint curValue,uint baseValue,uint alarmValue);
+
     void slotConnectStatus(bool state);
     void slotBtnClick(int index);
     void slotUpdateTime();
 
     void slotBtnReset();
+
+    void slotModUpdate(uint pass, uint canId, uint type, uint sts, uint av_1, uint bv_1, uint cv_1, uint av_2, uint bv_2, uint cv_2,
+                      qreal ai_1 = 0, qreal bi_1 = 0, qreal ci_1 = 0);
 };
 
 #endif // DISPLAYUNIT_H
