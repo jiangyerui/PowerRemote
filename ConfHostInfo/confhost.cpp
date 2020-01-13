@@ -2,6 +2,7 @@
 #include "ui_confhost.h"
 #include <sqlmanager.h>
 #include <QMessageBox>
+#include <QDebug>
 
 
 #define HOST    0
@@ -17,6 +18,7 @@ ConfHost::ConfHost(QWidget *parent) :
     ui->setupUi(this);
     initTableWidget(ui->tableWidget);
     confHostList(ui->tableWidget);
+//    qDebug() << "============== ConfHost::ConfHost(QWidget *parent) :===============";
     initConnect();
 }
 
@@ -49,12 +51,13 @@ void ConfHost::initTableWidget(QTableWidget *tableWidget)
 
     tableWidget->setColumnWidth(0,200);
     tableWidget->setColumnWidth(1,100);
-    tableWidget->setColumnWidth(2,60);
+    tableWidget->setColumnWidth(2,100);
     tableWidget->setColumnWidth(3,300);
 }
 
 void ConfHost::initConnect()
 {
+//     qDebug() << "==============void ConfHost::initConnect()===============";
     connect(ui->tBtnAdd,&QToolButton::clicked,this,&ConfHost::slotBtnAddHost);
     connect(ui->tBtnDel,&QToolButton::clicked,this,&ConfHost::slotBtnDelHost);
     connect(ui->tBtnSave,&QToolButton::clicked,this,&ConfHost::slotBtnSaveHost);
@@ -141,13 +144,13 @@ void ConfHost::slotBtnAddHost()
 
     ui->tableWidget->setRowCount(ui->tableWidget->rowCount()+1);
 
-    QFont ft("楷体",16);
+    QFont ft("楷体",12);
     QTableWidgetItem *item;
     for(int column = 0;column < ui->tableWidget->columnCount();column++)
     {
         item = new QTableWidgetItem;
         item->setFont(ft);
-        item->setTextColor(QColor(0,0,0));
+        item->setTextColor(QColor(255,255,255));
         item->setTextAlignment(Qt::AlignCenter);
         switch (column) {
         case HOST:

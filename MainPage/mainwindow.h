@@ -25,8 +25,8 @@ private:
 
 private slots:
     void slotBtnRecordInfo();
-    void slotBtnDisplayInfo();
-    void slotBtnConfHostInfo();
+    void slotBtnDisplayInfo();///显示监控信息
+    void slotBtnConfHostInfo();///设置主机IP
     void slotBtnAboutInfo();
 
     void slotSystemTime();

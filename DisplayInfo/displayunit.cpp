@@ -9,6 +9,9 @@
 #include <QButtonGroup>
 #include <QThread>
 #include <QSqlDatabase>
+#include <QDir>
+#include <QDebug>
+
 
 #include "sqlmanager.h"
 #include "tcpmanager.h"
@@ -22,20 +25,34 @@ DisplayUnit::DisplayUnit(QWidget *parent) :
     ui(new Ui::DisplayUnit)
 {
     ui->setupUi(this);
-    initWidget();
+    initWidget();///初始化模块结构体，和界面状态
 
     curPass = 0;
     curCanId= 0;
     alarmCount = 0;
     errorCount = 0;
     updateTimer = new QTimer;
-    connect(updateTimer,&QTimer::timeout,this,&DisplayUnit::slotUpdateTime);
+    connect(updateTimer,&QTimer::timeout,this,&DisplayUnit::slotUpdateTime);///更新当前显示模块的状态
     updateTimer->start(2000);
     ui->tBtnReset->hide();
 
 
     //    connect(ui->tBtnReset,&QToolButton::clicked,this,&DisplayUnit::slotBtnReset);
+    ///jiang start 2018.12.03
+    ui->lb_alarmNum->setVisible(false);
+    ui->label_2->setVisible(false);
+    ///jiang end 2018.12.03
 
+    /// ///jiang end 2019.04.27创建音频 播放
+    QDir dir;
+//    qDebug() << "currentPath : "+dir.currentPath()+"/alert.mp3";
+//    qDebug() << "QApplication : "+QApplication::applicationFilePath()+"/alert.mp3";
+//    qDebug() << "QCoreApplication : "+QCoreApplication::applicationDirPath()+"/alert.mp3";
+    oldAlarmCount=0;
+    oldErrorCount=0;
+    voiceFlag = true;
+    myPlayer = new QMediaPlayer;
+    myPlayer->setMedia(QUrl::fromLocalFile(dir.currentPath()+"/alert.mp3"));
 }
 
 
@@ -86,22 +103,23 @@ void DisplayUnit::initBtn()
     connect(tBtnGroup,SIGNAL(buttonPressed(int)),this,SLOT(slotBtnClick(int)));
 }
 
+
 void DisplayUnit::initMod()
 {
-    for(int pass = 0;pass < PASSNUM;pass++)
+    for(int pass = 0;pass < PASSNUM;pass++)///两个通道
     {
-        for(int id = 0;id < CANIDNUM;id++)
+        for(int id = 0;id < CANIDNUM+1;id++)///每个通道预设61个模块
         {
-            mod[pass][id].initData();
+            modUnit[id].initData();///初始化模块数据
         }
     }
 }
 
 void DisplayUnit::initWidget()
 {
-    initMod();
-    initBtn();
-    dateClean();
+    initMod();///初始化模块数据
+    initBtn();///初始化模块界面状态
+    dateClean();///初始化模块界面数据
 }
 
 void DisplayUnit::confTcpInfo(QString host, quint16 port)
@@ -112,7 +130,8 @@ void DisplayUnit::confTcpInfo(QString host, quint16 port)
     tcpManager->moveToThread(thread);
     thread->start();
 
-    connect(tcpManager,&TcpManager::sigModUpdate,this,&DisplayUnit::slotModUpdate);
+
+    connect(tcpManager,&TcpManager::sigModUpdate,this,&DisplayUnit::slotModUpdate);///更新modUnit[canId]
     connect(tcpManager,&TcpManager::sigConnectStatus,this,&DisplayUnit::slotConnectStatus);
 }
 
@@ -182,6 +201,35 @@ void DisplayUnit::updateNodeValue(uint canId)
     default:
         break;
     }
+
+    ///jiang start 2018.12.03
+    int sts = modUnit[canId].nodeStatus;
+    switch (sts) {
+    case NORMAL:
+        ui->lbState->setText("正常");
+        break;
+    case CANERROR:
+        ui->lbState->setText("通讯故障");
+        break;
+    case PHASELOSS:
+        ui->lbState->setText("缺相");
+        break;
+    case OVERCURRENT:
+        ui->lbState->setText("过流");
+        break;
+    case OVERVOLTAGE:
+        ui->lbState->setText("过压");
+        break;
+    case UNDERVOLTAGE:
+        ui->lbState->setText("欠压");
+        break;
+    case INTERRUPTION:
+        ui->lbState->setText("供电中断");
+        break;
+    default:
+        break;
+    }
+    ///jiang end 2018.12.03
 }
 
 void DisplayUnit::slotConnectStatus(bool state)
@@ -204,7 +252,37 @@ void DisplayUnit::slotBtnClick(int index)
     curPass  = 1;
     curCanId = text.right(length-2).toUInt();
     ui->lcdNb_address->display(QString("%1-%2").arg(curPass).arg(curCanId));
+
+    int sts = modUnit[curCanId].nodeStatus;
+    switch (sts) {
+    case NORMAL:
+        ui->lbState->setText("正常");
+        break;
+    case CANERROR:
+        ui->lbState->setText("通讯故障");
+        break;
+    case PHASELOSS:
+        ui->lbState->setText("缺相");
+        break;
+    case OVERCURRENT:
+        ui->lbState->setText("过流");
+        break;
+    case OVERVOLTAGE:
+        ui->lbState->setText("过压");
+        break;
+    case UNDERVOLTAGE:
+        ui->lbState->setText("欠压");
+        break;
+    case INTERRUPTION:
+        ui->lbState->setText("供电中断");
+        break;
+    default:
+        break;
+    }
+
+
     dateClean();
+//    updateNodeValue(index-1);
 }
 
 void DisplayUnit::slotUpdateTime()
@@ -228,18 +306,25 @@ void DisplayUnit::slotBtnReset()
         alarmCount = 0;
         errorCount = 0;
         ui->lb_nodeNum->setText("0");
-        ui->lb_alarmNum->setText("报警0个");
-        ui->lb_errorNum->setText("故障0个");
+        ui->lb_alarmNum->setText("供电中断0个");
+        ui->lb_errorNum->setText("通讯故障0个");
     }
 }
 
 void DisplayUnit::slotModUpdate(uint pass, uint canId, uint type, uint sts, uint av_1, uint bv_1, uint cv_1,
                                 uint av_2, uint bv_2, uint cv_2, qreal ai_1, qreal bi_1, qreal ci_1)
 {
+   // qDebug()<<"canId:"<<canId<<"type:"<<type<<"sts:"<<sts;
+//    qDebug()<<"=============void DisplayUnit::slotModUpdate=================="+host;
+
+
     Q_UNUSED(pass)
     modUnit[canId].used = true;
     modUnit[canId].nodeType = type;
 
+//#define MOD_VN3     7//三项双路有零
+//#define MOD_VAN3    8//电压电流有零
+//#define MOD_2VAN3   9//两路三项电压一路三项电流
     switch (type) {
     case MOD_V:
     case MOD_V3:
@@ -282,6 +367,19 @@ void DisplayUnit::slotModUpdate(uint pass, uint canId, uint type, uint sts, uint
         break;
     }
 
+//#define NORMAL          0x00//正常
+//#define OVERCURRENT     0x01//过流
+//#define PHASELOSS       0x02//错相
+//#define OVERVOLTAGE     0x03//过压
+//#define UNDERVOLTAGE    0x04//欠压
+//#define CANERROR        0x05//通讯中断
+//#define INTERRUPTION    0x06//供电中断
+//    qDebug()<<"sts : "<<sts;
+
+///jiang start 2018.12.02
+//    modUnit[curCanId].nodeStatus = sts;
+        modUnit[canId].nodeStatus = sts;
+///jiang end 2018.12.02
     switch (sts) {
     case NORMAL:
 
@@ -308,35 +406,52 @@ void DisplayUnit::slotModUpdate(uint pass, uint canId, uint type, uint sts, uint
         if(modUnit[canId].underVoltageFlag == true)
         {
             errorCount--;
-           modUnit[canId].underVoltageFlag = false;
+            modUnit[canId].underVoltageFlag = false;
         }
-        if(modUnit[canId].interruptionFlag == false)
+        if(modUnit[canId].interruptionFlag == true)
         {
             alarmCount--;
-            modUnit[canId].interruptionFlag = true;
+            modUnit[canId].interruptionFlag = false;
         }
-        if(modUnit[canId].dropFlag == false&&modUnit[canId].phaseLossFlag == false&&
-                modUnit[canId].overCurrentFlag == false&&modUnit[canId].overVoltageFlag == false&&
-                modUnit[canId].underVoltageFlag == false&&modUnit[canId].interruptionFlag == false)
+        if(modUnit[canId].dropFlag == false && modUnit[canId].phaseLossFlag == false &&
+                modUnit[canId].overCurrentFlag == false && modUnit[canId].overVoltageFlag == false&&
+                modUnit[canId].underVoltageFlag == false && modUnit[canId].interruptionFlag == false)
         {
-            ui->lbState->setText("正常");
+            //ui->lbState->setText("正常");
             modUnit[canId].normalFlag = true;
         }
+        break;
 
-
-    case CANERROR:
+    case CANERROR:///通讯中断
 
         if(modUnit[canId].dropFlag == false)
         {
             errorCount++;
-            ui->lbState->setText("通讯故障");
+            //ui->lbState->setText("通讯故障");
             modUnit[canId].dropFlag = true;
             uint alarmTime = QDateTime::currentDateTime().toTime_t();
             QSqlDatabase db = SqlManager::openConnection();
             SqlManager::insertAlarmRecord(db,host,1,canId,type,sts,0,alarmTime);
             SqlManager::closeConnection(db);
         }
+        ///jiang end
+        else
 
+        {
+
+            modUnit[canId].normalFlag = false;
+
+            modUnit[canId].phaseLossFlag = false;
+
+            modUnit[canId].overCurrentFlag = false;
+
+            modUnit[canId].overVoltageFlag = false;
+
+            modUnit[canId].underVoltageFlag = false;
+
+            modUnit[canId].interruptionFlag = false;
+        }
+///jiang end
         break;
     case PHASELOSS:
 
@@ -344,7 +459,7 @@ void DisplayUnit::slotModUpdate(uint pass, uint canId, uint type, uint sts, uint
         {
             errorCount++;
             modUnit[canId].phaseLossFlag = true;
-            ui->lbState->setText("缺相");
+            //ui->lbState->setText("缺相");
             uint alarmTime = QDateTime::currentDateTime().toTime_t();
             QSqlDatabase db = SqlManager::openConnection();
             SqlManager::insertAlarmRecord(db,host,1,canId,type,sts,0,alarmTime);
@@ -357,7 +472,7 @@ void DisplayUnit::slotModUpdate(uint pass, uint canId, uint type, uint sts, uint
         if(modUnit[canId].overCurrentFlag == false)
         {
             errorCount++;
-            ui->lbState->setText("过流");
+            //ui->lbState->setText("过流");
             modUnit[canId].overCurrentFlag = true;
             uint alarmTime = QDateTime::currentDateTime().toTime_t();
             QSqlDatabase db = SqlManager::openConnection();
@@ -371,7 +486,7 @@ void DisplayUnit::slotModUpdate(uint pass, uint canId, uint type, uint sts, uint
         if(modUnit[canId].overVoltageFlag == false)
         {
             errorCount++;
-            ui->lbState->setText("过压");
+            //ui->lbState->setText("过压");
             modUnit[canId].overVoltageFlag = true;
             uint alarmTime = QDateTime::currentDateTime().toTime_t();
             QSqlDatabase db = SqlManager::openConnection();
@@ -385,7 +500,7 @@ void DisplayUnit::slotModUpdate(uint pass, uint canId, uint type, uint sts, uint
         if(modUnit[canId].underVoltageFlag == false)
         {
             errorCount++;
-            ui->lbState->setText("欠压");
+            //ui->lbState->setText("欠压");
             modUnit[canId].underVoltageFlag = true;
             uint alarmTime = QDateTime::currentDateTime().toTime_t();
             QSqlDatabase db = SqlManager::openConnection();
@@ -394,12 +509,12 @@ void DisplayUnit::slotModUpdate(uint pass, uint canId, uint type, uint sts, uint
         }
 
         break;
-    case INTERRUPTION:
+    case INTERRUPTION:///供电中断
 
         if(modUnit[canId].interruptionFlag == false)
         {
             alarmCount++;
-            ui->lbState->setText("供电中断");
+            //ui->lbState->setText("供电中断");
             modUnit[canId].interruptionFlag = true;
             uint alarmTime = QDateTime::currentDateTime().toTime_t();
             QSqlDatabase db = SqlManager::openConnection();
@@ -407,48 +522,241 @@ void DisplayUnit::slotModUpdate(uint pass, uint canId, uint type, uint sts, uint
             SqlManager::closeConnection(db);
 
         }
-
         break;
     default:
         break;
     }
 
-    QString alarmText = "报警"+QString::number(alarmCount)+"个";
-    QString errorText = "故障"+QString::number(errorCount)+"个";
+    QString alarmText = "供电中断"+QString::number(alarmCount)+"个";
+    QString errorText = "通讯故障"+QString::number(errorCount)+"个";
+
     ui->lb_alarmNum->setText(alarmText);
     ui->lb_errorNum->setText(errorText);
+    if((alarmCount>0||errorCount>0)&&voiceFlag==true){
+        //声音报警
+//        qDebug()<<"声音报警****************************";
+        myPlayer->play();
+    }else{
+        //消音
+        myPlayer->pause();
+    }
+
+    if((alarmCount>oldAlarmCount)||(errorCount>oldErrorCount)){
+        voiceFlag=true;
+        myPlayer->play();
+        oldAlarmCount=alarmCount;
+        oldErrorCount=errorCount;
+    }
+
+
 
     int index = 1;
-    for(int canId = 1;canId < CANIDNUM; canId++)
-    {
-        tBtnGroup->button(index)->setText(" ");
-        tBtnGroup->button(index)->setVisible(false);
-        if(modUnit[canId].used == true)
+    if(pageCount==1){
+        for(int canId = 1;canId < 61; canId++)
         {
-            QString text = QString::number(pass)+"-"+QString::number(canId);
-            tBtnGroup->button(index)->setText(text);
-            tBtnGroup->button(index)->setVisible(true);
+            tBtnGroup->button(index)->setText(" ");
+            tBtnGroup->button(index)->setVisible(false);
+            if(modUnit[canId].used == true)
+            {
+                QString text = QString::number(pass)+"-"+QString::number(canId);
+                tBtnGroup->button(index)->setText(text);
+                tBtnGroup->button(index)->setVisible(true);
 
-            if(mod[pass][canId].normalFlag == true)
-            {
-                tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/normal.png")));
+                if(modUnit[canId].dropFlag== true)
+                {
+                    tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/drop.png")));
+                }
+                if(modUnit[canId].normalFlag== true)
+                {
+                    tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/normal.png")));
+                }
+                if(modUnit[canId].phaseLossFlag == true)
+                {
+                    tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/error.png")));
+                }
+                if(modUnit[canId].overCurrentFlag== true)
+                {
+                    tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/alarm.png")));
+                }
+                if(modUnit[canId].overVoltageFlag== true)
+                {
+                    tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/alarm.png")));
+                }
+                if(modUnit[canId].underVoltageFlag== true)
+                {
+                    tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/alarm.png")));
+                }
+                if(modUnit[canId].interruptionFlag == true)
+                {
+                    tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/error.png")));
+                }
+                index++;
             }
-            if(mod[pass][canId].errorFlag  == true)
+    }
+    }
+    if(pageCount==2){
+        for(int canId = 61;canId < 121; canId++)
+        {
+            tBtnGroup->button(index)->setText(" ");
+            tBtnGroup->button(index)->setVisible(false);
+            if(modUnit[canId].used == true)
             {
-                tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/error.png")));
+                QString text = QString::number(pass)+"-"+QString::number(canId);
+                tBtnGroup->button(index)->setText(text);
+                tBtnGroup->button(index)->setVisible(true);
+
+                if(modUnit[canId].dropFlag== true)
+                {
+                    tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/drop.png")));
+                }
+                if(modUnit[canId].normalFlag== true)
+                {
+                    tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/normal.png")));
+                }
+                if(modUnit[canId].phaseLossFlag == true)
+                {
+                    tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/error.png")));
+                }
+                if(modUnit[canId].overCurrentFlag== true)
+                {
+                    tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/alarm.png")));
+                }
+                if(modUnit[canId].overVoltageFlag== true)
+                {
+                    tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/alarm.png")));
+                }
+                if(modUnit[canId].underVoltageFlag== true)
+                {
+                    tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/alarm.png")));
+                }
+                if(modUnit[canId].interruptionFlag == true)
+                {
+                    tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/error.png")));
+                }
+                index++;
             }
-            if(mod[pass][canId].dropFlag   == true)
+    }
+    }
+    if(pageCount==3){
+        for(int canId = 121;canId < 128; canId++)
+        {
+            tBtnGroup->button(index)->setText(" ");
+            tBtnGroup->button(index)->setVisible(false);
+            if(modUnit[canId].used == true)
             {
-                tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/error.png")));
+                QString text = QString::number(pass)+"-"+QString::number(canId);
+                tBtnGroup->button(index)->setText(text);
+                tBtnGroup->button(index)->setVisible(true);
+
+                if(modUnit[canId].dropFlag== true)
+                {
+                    tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/drop.png")));
+                }
+                if(modUnit[canId].normalFlag== true)
+                {
+                    tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/normal.png")));
+                }
+                if(modUnit[canId].phaseLossFlag == true)
+                {
+                    tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/error.png")));
+                }
+                if(modUnit[canId].overCurrentFlag== true)
+                {
+                    tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/alarm.png")));
+                }
+                if(modUnit[canId].overVoltageFlag== true)
+                {
+                    tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/alarm.png")));
+                }
+                if(modUnit[canId].underVoltageFlag== true)
+                {
+                    tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/alarm.png")));
+                }
+                if(modUnit[canId].interruptionFlag == true)
+                {
+                    tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/error.png")));
+                }
+                index++;
             }
-            if(mod[pass][canId].alarmFlag  == true)
-            {
-                tBtnGroup->button(index)->setIcon(QIcon(QPixmap(":/Image/alarm.png")));
-            }
-            index++;
+    }
+    }
+
+    int canCount=0;
+    for(int i=0 ;i<128;i++){
+        if(modUnit[i].used == true){
+            canCount++;
         }
     }
+//    qDebug()<< canCount;
+
     //节点数目
-    ui->lb_nodeNum->setText(QString::number(index-1));
+    ui->lb_nodeNum->setText(QString::number(canCount));
+
+
+//    QString threadName = QStringLiteral("@0x%1").arg(quintptr(thread->currentThreadId()),16,16,QLatin1Char('0'));
+
+//    qDebug()<<"========="+threadName;
+
+}
+
+void DisplayUnit::initPage(){
+    switch (pageCount) {
+    case 1:
+        for(int i = 1; i <= 60;i++)
+        {
+            tBtnGroup->button(i)->setVisible(false);
+            tBtnGroup->button(i)->setIcon(QIcon(QPixmap(":/Image/normal.png")));
+            tBtnGroup->button(i)->setText(QString::number(1)+"-"+QString::number(i));
+        }
+        break;
+    case 2:
+        for(int i = 1; i <= 60;i++)
+        {
+            tBtnGroup->button(i)->setVisible(false);
+            tBtnGroup->button(i)->setIcon(QIcon(QPixmap(":/Image/normal.png")));
+            tBtnGroup->button(i)->setText(QString::number(1)+"-"+QString::number(i+60));
+        }
+        break;
+    case 3:
+        for(int i = 1; i <= 60;i++)
+        {
+            tBtnGroup->button(i)->setVisible(false);
+            tBtnGroup->button(i)->setIcon(QIcon(QPixmap(":/Image/normal.png")));
+            tBtnGroup->button(i)->setText(QString::number(1)+"-"+QString::number(i+120));
+        }
+        break;
+    }
+}
+void DisplayUnit::on_upPageBtn_clicked()
+{
+    pageCount=pageCount-1;
+    if(pageCount<1||pageCount>3){
+        pageCount=1;
+    }
+    initPage();
+
+}
+
+void DisplayUnit::on_downPageBtn_clicked()
+{
+    pageCount=pageCount+1;
+    if(pageCount<1||pageCount>3){
+        pageCount=3;
+    }
+    initPage();
+}
+
+void DisplayUnit::on_tBtn_Voice_clicked()
+{
+
+    if(voiceFlag){
+        myPlayer->pause();
+        voiceFlag=false;
+    }
+
+    else{
+        myPlayer->play();
+        voiceFlag=true;
+    }
 
 }

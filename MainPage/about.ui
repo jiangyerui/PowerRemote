@@ -15,7 +15,7 @@
   </property>
   <property name="styleSheet">
    <string notr="true">QWidget{
-background-color: rgb(3, 127, 119);
+background-color: rgb(40, 40, 41);
 }
 QGroupBox{
 font: 14pt &quot;楷体&quot;;
@@ -76,30 +76,45 @@ border:1px solid white;
 color: rgb(255, 255, 255);
 }</string>
   </property>
-  <widget class="QLabel" name="label">
+  <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>405</x>
-     <y>195</y>
-     <width>106</width>
-     <height>40</height>
+     <x>260</x>
+     <y>300</y>
+     <width>701</width>
+     <height>171</height>
     </rect>
    </property>
    <property name="text">
-    <string>软件版本：</string>
+    <string>版 本：Version 1.0.5
+地 址：北京市通州区中关村科技园区金桥产业基地景盛南四街甲13号1I
+电 话：010-59777836/37/38
+传 真：010-59777839
+邮 箱：sales@bjlcgh.com.cn
+网 址：www.bjlcgh.com.cn
+</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_2">
+  <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>525</x>
-     <y>195</y>
-     <width>86</width>
-     <height>40</height>
+     <x>260</x>
+     <y>260</y>
+     <width>471</width>
+     <height>41</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>楷体</family>
+     <pointsize>16</pointsize>
+     <weight>50</weight>
+     <italic>false</italic>
+     <bold>false</bold>
+    </font>
+   </property>
    <property name="text">
-    <string>V-1.0.0</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt;&quot;&gt;北京联创广汇自控设备有限公司&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
  </widget>

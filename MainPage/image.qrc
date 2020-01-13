@@ -32,5 +32,7 @@
         <file>Image/addDev.png</file>
         <file>Image/saveConf.png</file>
         <file>Image/backup.png</file>
+        <file>Image/LOGO.png</file>
+        <file>Image/drop.png</file>
     </qresource>
 </RCC>

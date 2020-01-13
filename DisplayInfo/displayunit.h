@@ -4,9 +4,10 @@
 #include <QWidget>
 #include "displayinfo.h"
 #include "displayinfo.h"
+#include <QMediaPlayer>
 
 #define PASSNUM 2
-#define CANIDNUM 61
+#define CANIDNUM 127
 
 
 class QTimer;
@@ -60,7 +61,6 @@ public:
         tempCur = 0;
         tempSet = 0;
 
-
         dropFlag  = false;
         alarmFlag = false;
         errorFlag = false;
@@ -72,9 +72,9 @@ public:
 class ModularUnit{
 public:
     bool used;
-    int pass;
+    int pass;///CAN通道1或2
     int canId;
-    int nodeStatus;
+    int nodeStatus;///模块状态，如供电中断
     int nodeType;
 
     bool dropFlag;          //掉线
@@ -85,13 +85,13 @@ public:
     bool underVoltageFlag;  //欠压
     bool interruptionFlag;  //供电中断
 
-    int  _AV_1;
-    int  _BV_1;
-    int  _CV_1;
+    int _AV_1;
+    int _BV_1;
+    int _CV_1;
 
-    int  _AV_2;
-    int  _BV_2;
-    int  _CV_2;
+    int _AV_2;
+    int _BV_2;
+    int _CV_2;
 
     qreal _AI_1;
     qreal _BI_1;
@@ -99,8 +99,28 @@ public:
 
     void initData(){
         used = false;
-        nodeType = 0;
-        nodeStatus = 0;
+        nodeType = 0;///模块类型
+        nodeStatus = 0;///工作状态
+
+        dropFlag = false;///掉线
+        normalFlag = false;
+        phaseLossFlag = false;
+        overCurrentFlag = false;
+        overVoltageFlag = false;
+        underVoltageFlag = false;
+        interruptionFlag = false;//供电中断
+
+        _AV_1 = 0;
+        _BV_1 = 0;
+        _CV_1 = 0;
+
+        _AV_2 = 0;
+        _BV_2 = 0;
+        _CV_2 = 0;
+
+        _AI_1 = 0;
+        _BI_1 = 0;
+        _CI_1 = 0;
     }
 
 
@@ -125,10 +145,15 @@ private:
     QThread *thread;
     TcpManager *tcpManager;
     QButtonGroup *tBtnGroup;
+    QMediaPlayer *myPlayer;
+    bool voiceFlag;
 
     int nodeCount;
     int errorCount;
+    int oldErrorCount;
     int alarmCount;
+    int oldAlarmCount;
+    int pageCount=1;
     QString host;
 
     uint curPass;
@@ -137,11 +162,12 @@ private:
 
     BtnUnitInfo mod[PASSNUM][CANIDNUM];
 
-    ModularUnit modUnit[CANIDNUM];
+    ModularUnit modUnit[CANIDNUM+1];
 
     void initBtn();
     void initMod();
     void initWidget();
+    void initPage();
 
     void dateClean();//清空数据
     void updateNodeValue(uint canId);//探测器实时数据
@@ -156,7 +182,10 @@ private slots:
     void slotBtnReset();
 
     void slotModUpdate(uint pass, uint canId, uint type, uint sts, uint av_1, uint bv_1, uint cv_1, uint av_2, uint bv_2, uint cv_2,
-                      qreal ai_1 = 0, qreal bi_1 = 0, qreal ci_1 = 0);
+                       qreal ai_1 = 0, qreal bi_1 = 0, qreal ci_1 = 0);
+    void on_upPageBtn_clicked();
+    void on_downPageBtn_clicked();
+    void on_tBtn_Voice_clicked();
 };
 
 #endif // DISPLAYUNIT_H

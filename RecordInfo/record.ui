@@ -15,7 +15,7 @@
   </property>
   <property name="styleSheet">
    <string notr="true">QWidget{
-background-color: rgb(3, 127, 119);
+background-color: rgb(40, 40, 41);
 }
 QGroupBox{
 font: 14pt &quot;楷体&quot;;
@@ -62,7 +62,7 @@ QComboBox{
 font: 16pt &quot;楷体&quot;;
 color: rgb(255, 255, 255);
 border:1px solid white;
-background-color: rgb(3, 127, 119);
+background-color: rgb(40, 40, 41);
 }
 QComboBox QAbstractItemView::item{
 font: 16pt &quot;楷体&quot;;
@@ -263,7 +263,7 @@ color: rgb(255, 255, 255);
 font: 13pt &quot;楷体&quot; rgb(255, 255, 255);
 border:1px  none white;
 gridline-color: rgb(0, 0, 0);
-background-color: rgb(3, 127, 119);
+background-color: rgb(40, 40, 41);
 }</string>
     </property>
     <property name="horizontalScrollBarPolicy">

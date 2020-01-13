@@ -16,7 +16,7 @@
   <property name="styleSheet">
    <string notr="true">QWidget#DisplayUnit{
 color: rgb(255, 255,255);
-background-color: rgb(3, 127, 119);
+background-color: rgb(40, 40, 41);
 }
 
 QPushButton{
@@ -27,7 +27,7 @@ color: rgb(255, 255, 255);
 border:1px solid;
 border-radius:10px;
 border-color: rgb(0, 0, 0);
-background-color: rgb(43, 79, 102);
+background-color: rgb(60,63,65);
 }
 
 QLabel{
@@ -105,7 +105,7 @@ border-radius:8px;
      <string notr="true">font: 16pt &quot;楷体&quot;;</string>
     </property>
     <property name="text">
-     <string>mA</string>
+     <string>A</string>
     </property>
    </widget>
    <widget class="QLCDNumber" name="lcdNb_AV_1">
@@ -234,7 +234,7 @@ border-radius:8px;
      <string>font: 16pt &quot;楷体&quot;;</string>
     </property>
     <property name="text">
-     <string>mA</string>
+     <string>A</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_21">
@@ -511,7 +511,7 @@ border-radius:8px;
      <string notr="true">font: 16pt &quot;楷体&quot;;</string>
     </property>
     <property name="text">
-     <string>mA</string>
+     <string>A</string>
     </property>
    </widget>
    <widget class="QLCDNumber" name="lcdNb_CV_2">
@@ -634,7 +634,7 @@ color: rgb(255, 255, 255);
 }</string>
     </property>
     <property name="text">
-     <string>60</string>
+     <string>0</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -888,7 +888,7 @@ color: rgb(255, 255, 255);
 }</string>
     </property>
     <property name="text">
-     <string>过压</string>
+     <string/>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -933,7 +933,7 @@ color: rgb(255, 255, 255);
 border:1px solid;
 border-radius:10px;
 border-color: rgb(0, 0, 0);
-background-color: rgb(43, 79, 102);
+background-color: rgb(60,63,65);
 }
 QLabel{
 font: 16pt &quot;楷体&quot;;
@@ -2911,7 +2911,7 @@ color: rgb(255, 255, 255);
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>180</x>
+      <x>15</x>
       <y>25</y>
       <width>30</width>
       <height>30</height>
@@ -2940,9 +2940,9 @@ background-color: rgb(225, 225, 0);
    <widget class="QLabel" name="lb_errorNum">
     <property name="geometry">
      <rect>
-      <x>215</x>
+      <x>50</x>
       <y>25</y>
-      <width>90</width>
+      <width>131</width>
       <height>30</height>
      </rect>
     </property>
@@ -2961,14 +2961,14 @@ color: rgb(255, 255, 255);
 }</string>
     </property>
     <property name="text">
-     <string>故障0个</string>
+     <string>通讯故障0个</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_15">
     <property name="geometry">
      <rect>
-      <x>665</x>
-      <y>25</y>
+      <x>610</x>
+      <y>20</y>
       <width>51</width>
       <height>30</height>
      </rect>
@@ -2992,8 +2992,8 @@ color: rgb(255, 255, 255);
    <widget class="QLabel" name="lb_netStatus">
     <property name="geometry">
      <rect>
-      <x>720</x>
-      <y>25</y>
+      <x>700</x>
+      <y>20</y>
       <width>121</width>
       <height>30</height>
      </rect>
@@ -3017,6 +3017,45 @@ color: rgb(255, 255, 255);
     </property>
     <property name="alignment">
      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="upPageBtn">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>20</y>
+      <width>100</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>上一页</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="downPageBtn">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>20</y>
+      <width>100</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>下一页</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="tBtn_Voice">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>20</y>
+      <width>91</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>消音</string>
     </property>
    </widget>
   </widget>

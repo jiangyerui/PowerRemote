@@ -8,6 +8,12 @@
 #include "displaycontainer.h"
 #include <QDateTime>
 #include <QTimer>
+#include <QDebug>
+//////////////////
+#include <QtSql/QSqlError>
+#include <QtSql/QSqlQuery>
+#include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlQueryModel>
 MainWindow::MainWindow(QWidget *parent)
     :QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -16,24 +22,27 @@ MainWindow::MainWindow(QWidget *parent)
 //    setWindowFlags(Qt::FramelessWindowHint);
 //    showFullScreen();
 
+    ui->stackedWidget->addWidget((new DisplayContainer));///显示监控信息
+    ui->stackedWidget->addWidget((new Record));///显示历史记录
+    ui->stackedWidget->addWidget((new ConfHost));///显示主机配置
+    ui->stackedWidget->addWidget((new About));///显示版本信息
 
-    ui->stackedWidget->addWidget((new DisplayContainer));
-    ui->stackedWidget->addWidget((new Record));
-    ui->stackedWidget->addWidget((new ConfHost));
-    ui->stackedWidget->addWidget((new About));
+    initConnnet();///初始化连接
+    ///jiang start 2018.12.02
+//    normalStyle = "QToolButton{font: 22pt '楷体';border:2px none;color: rgb(85, 170, 127);border-color: rgb(0, 170, 127);}"
+//                  "QToolButton:hover{font: 24pt '楷体';color: rgb(255, 255, 255);background-color: rgb(3, 127, 119);}";
+//    selectStyle = "font: 24pt '楷体';color: rgb(255, 255, 255);background-color: rgb(3, 127, 119);";
 
-    initConnnet();
     normalStyle = "QToolButton{font: 22pt '楷体';border:2px none;color: rgb(85, 170, 127);border-color: rgb(0, 170, 127);}"
-                  "QToolButton:hover{font: 24pt '楷体';color: rgb(255, 255, 255);background-color: rgb(3, 127, 119);}";
-    selectStyle = "font: 24pt '楷体';color: rgb(255, 255, 255);background-color: rgb(3, 127, 119);";
-    slotBtnDisplayInfo();
+                  "QToolButton:hover{font: 24pt '楷体';color: rgb(255, 255, 255);background-color: rgb(40, 40, 41);}";
+    selectStyle = "font: 24pt '楷体';color: rgb(255, 255, 255);background-color: rgb(40, 40, 41);";
+      ///jiang end 2018.12.02
+    slotBtnDisplayInfo();///软件启动即可显示监控信息
 
 
     systemTimer = new QTimer;
-    connect(systemTimer,&QTimer::timeout,this,&MainWindow::slotSystemTime);
+    connect(systemTimer,&QTimer::timeout,this,&MainWindow::slotSystemTime);///更新系统时间
     systemTimer->start(1000);
-
-
 }
 
 MainWindow::~MainWindow()
@@ -52,6 +61,7 @@ void MainWindow::initConnnet()
 
 void MainWindow::slotBtnDisplayInfo()
 {
+
     ui->stackedWidget->setCurrentIndex(0);
 
     ui->tBtnAboutInfo->setStyleSheet(normalStyle);

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.7.1, 2019-11-13T14:32:08. -->
+<!-- Written by QtCreator 4.7.1, 2018-12-02T17:23:50. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
-  <value type="QByteArray">{411dc7dc-7afd-48ce-8bdc-a56e066aa53c}</value>
+  <value type="QByteArray">{31895e40-2275-48c1-bcfb-12ce59cee372}</value>
  </data>
  <data>
   <variable>ProjectExplorer.Project.ActiveTarget</variable>
@@ -295,6 +295,7 @@
     <value type="bool" key="QmakeProjectManager.QmakeRunConfiguration.UseLibrarySearchPath">true</value>
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments"></value>
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.ProFile">MainPage/MainPage.pro</value>
+    <value type="bool" key="Qt4ProjectManager.Qt4RunConfiguration.UseTerminal">false</value>
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory"></value>
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory.default">D:/build-PowerRemote-Desktop_Qt_5_11_2_MinGW_32bit-Release/MainPage</value>
     <value type="uint" key="RunConfiguration.QmlDebugServerPort">3768</value>

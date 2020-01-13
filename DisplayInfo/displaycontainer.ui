@@ -19,7 +19,7 @@ border-width: 0px;
 border-color:white;
 border-style:outset;
 /*border-radius: 40px;*/
-background-color: rgb(43, 79, 102);
+background-color: rgb(60,63,65);
 }​
 QTabWidget::tab-bar{
 left:10px;

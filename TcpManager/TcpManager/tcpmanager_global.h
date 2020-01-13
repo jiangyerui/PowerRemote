@@ -1,0 +1,12 @@
+#ifndef TCPMANAGER_GLOBAL_H
+#define TCPMANAGER_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(TCPMANAGER_LIBRARY)
+#  define TCPMANAGERSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define TCPMANAGERSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // TCPMANAGER_GLOBAL_H

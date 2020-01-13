@@ -168,8 +168,8 @@ SqlManager &SqlManager::getInstance()
 
 bool SqlManager::insertHostList(QSqlDatabase db, QString host, QString port, QString able, QString address)
 {
-    QString sqlQuery = "insert into HOSTINFO values('"+host+"',"+port+","+able+",'"+address+"');";
-
+    QString sqlQuery = "insert into HOSTINFO values('"+host+"',"+port+",0,"+able+",'"+address+"');";
+    qDebug()<<sqlQuery;
     QSqlQuery query(db);
     if(!query.exec(sqlQuery))
     {
@@ -234,8 +234,8 @@ bool SqlManager::delelteRecordItem(QSqlDatabase db, uint pass, uint canId, uint 
 
 QList<QStringList> SqlManager::getHostList(QSqlDatabase db, const QString &sqlQuery, ListMode listMode)
 {
-    QList<QStringList> list;list.clear();
-
+    QList<QStringList> list;
+    list.clear();
     QSqlQuery query(db);
     if(query.exec(sqlQuery))
     {

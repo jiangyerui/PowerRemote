@@ -7,6 +7,7 @@
 QT       += widgets sql
 
 QT       -= gui
+QT       += multimedia
 
 TARGET = DisplayInfo
 TEMPLATE = lib

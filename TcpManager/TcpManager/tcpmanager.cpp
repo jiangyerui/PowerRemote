@@ -13,7 +13,4 @@ TcpManager::TcpManager(QString host, quint16 port)
     //connect(tcpThread,&TcpThread::sigNodeUpdate,this,&TcpManager::sigNodeUpdate);
     connect(tcpThread,&TcpThread::sigConnectStatus,this,&TcpManager::sigConnectStatus);
 
-//    connect(tcpManager,&TcpManager::sigModUpdate,this,&DisplayUnit::slotModUpdate);///更新modUnit[canId]
-//    connect(tcpManager,&TcpManager::sigConnectStatus,this,&DisplayUnit::slotConnectStatus);
-
 }
